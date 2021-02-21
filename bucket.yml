@@ -1,7 +1,7 @@
 Parameters:
   NAME:
     Type: String
-    #Default: uda-prod-bucket
+    Default: uda-prod-bucket
 Resources:
   WebsiteBucket:
     Type: AWS::S3::Bucket
