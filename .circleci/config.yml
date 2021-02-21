@@ -1,0 +1,100 @@
+version: 2.1
+
+jobs:
+  create_and_deploy_front_end:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run: 
+          name: Creation and Deployment of Front-End.
+          command: |
+            aws cloudformation deploy \
+            --template-file bucket.yml \
+            --stack-name "${CIRCLE_WORKFLOW_ID:0:7}" \
+            --parameter-overrides PipelineID="${CIRCLE_WORKFLOW_ID:0:7}"
+
+  get_last_deployment_id:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run: yum install -y tar
+      - run: yum install -y gzip
+      - run:
+          name: Retrieve last deployment ID
+          command: |
+            aws cloudformation \
+            list-exports --query "Exports[?Name==\`PipelineID\`].Value" \
+            --no-paginate \
+            --output text >> PipelineID.txt
+      - run: cat PipelineID.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - "PipelineID.txt"
+      - run:
+          name: Retrieve last deployment Stack Name
+          command: |
+            aws cloudformation \
+            list-exports --query "Exports[?Name==\`StackName\`].Value" \
+            --no-paginate \
+            --output text >> StackName.txt
+      - run: cat StackName.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - "StackName.txt"
+
+  
+  promote_to_production:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      -  run:
+            name: Promote to Prod
+            command: |
+              aws cloudformation deploy \
+              --template-file cloudfront.yml \
+              --stack-name production-distro \
+              --parameter-overrides PipelineID="${CIRCLE_WORKFLOW_ID}"
+
+  clean_up_front_end:
+    docker:
+      - image: amazon/aws-cli
+      
+    steps:
+      - checkout
+      - run: yum install -y tar
+      - run: yum install -y gzip
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Clean Up
+          command: |
+            cat ~/PipelineID.txt
+            OldPipelineID = $(cat ~/PipelineID.txt)
+            cat ~/StackName.txt
+            PreviousStackName = $(cat ~/StackName.txt)
+            echo OldPipelineID
+            aws s3 rm "s3://${OldPipelineID}" --recursive
+            aws cloudformation delete-stack --stack-name "${OldPipelineID}"
+
+
+workflows:
+  creation-and-deployment-fe:
+    jobs:
+      - create_and_deploy_front_end
+      - get_last_deployment_id:
+          requires:
+            - create_and_deploy_front_end
+      - promote_to_production:
+          requires:
+            - get_last_deployment_id
+      - clean_up_front_end:
+          requires:
+            - promote_to_production
+
+
+# https://memstash.io/
