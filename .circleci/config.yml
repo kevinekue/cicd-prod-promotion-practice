@@ -46,7 +46,7 @@ jobs:
             aws cloudformation \
             list-exports --query "Exports[?Name==\`PipelineID\`].Value" \
             --no-paginate --output text >> ~/PipelineID.txt
-      - run: cat PipelineID.txt
+      - run: cat ~/PipelineID.txt
       - persist_to_workspace:
           root: ~/
           paths:
@@ -57,7 +57,7 @@ jobs:
             aws cloudformation \
             list-exports --query "Exports[?Name==\`StackName\`].Value" \
             --no-paginate --output text >> ~/StackName.txt
-      - run: cat StackName.txt
+      - run: cat ~/StackName.txt
       - persist_to_workspace:
           root: ~/
           paths:
