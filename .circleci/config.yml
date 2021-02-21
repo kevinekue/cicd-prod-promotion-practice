@@ -1,5 +1,18 @@
 version: 2.1
 
+# commands:
+#   destroy_environment:
+#     # parameters:
+#     #   when_to_run:
+#     #     type: string
+#     #     default: on_fail
+#     steps:
+#       - run:
+#           name: Destroy environment
+#           command: |
+#             aws cloudformation delete-stack --stack-name templateUdacity-${CIRCLE_WORKFLOW_ID}
+#           when:  on_fail
+
 jobs:
   create_and_deploy_front_end:
     docker:
@@ -24,11 +37,15 @@ jobs:
       - run: yum install -y tar
       - run: yum install -y gzip
       - run:
+          command: |
+            aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+            aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+      - run:
           name: Retrieve last deployment ID
           command: |
             aws cloudformation \
             list-exports --query "Exports[?Name==\`PipelineID\`].Value" \
-            --no-paginate --output text > PipelineID.txt
+            --no-paginate --output text >> PipelineID.txt
       - run: cat PipelineID.txt
       - persist_to_workspace:
           root: ~/
@@ -39,7 +56,7 @@ jobs:
           command: |
             aws cloudformation \
             list-exports --query "Exports[?Name==\`StackName\`].Value" \
-            --no-paginate --output text > StackName.txt
+            --no-paginate --output text >> StackName.txt
       - run: cat StackName.txt
       - persist_to_workspace:
           root: ~/
