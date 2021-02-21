@@ -96,7 +96,7 @@ jobs:
             PreviousStackName = $(cat ~/StackName.txt)
             echo OldPipelineID
             aws s3 rm "s3://${OldPipelineID}" --recursive
-            aws cloudformation delete-stack --stack-name "${OldPipelineID}"
+            aws cloudformation delete-stack --stack-name "${PreviousStackName}"
 
 
 workflows:
