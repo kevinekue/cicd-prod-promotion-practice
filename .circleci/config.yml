@@ -34,7 +34,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - "PipelineID.txt"
+            - PipelineID.txt
       - run:
           name: Retrieve last deployment Stack Name
           command: |
@@ -46,7 +46,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - "StackName.txt"
+            - StackName.txt
 
   
   promote_to_production:
