@@ -45,7 +45,7 @@ jobs:
           command: |
             aws cloudformation \
             list-exports --query "Exports[?Name==\`PipelineID\`].Value" \
-            --no-paginate --output text >> ~/PipelineID.txt
+            --region us-west-2 --no-paginate --output text >> ~/PipelineID.txt
       - run: cat ~/PipelineID.txt
       - persist_to_workspace:
           root: ~/
