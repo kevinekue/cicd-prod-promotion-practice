@@ -92,10 +92,10 @@ jobs:
           command: |
             cat ~/PipelineID.txt
             OldPipelineID = `cat ~/PipelineID.txt`
-            echo $OldPipelineID
+            echo ${OldPipelineID}
             cat ~/StackName.txt
             PreviousStackName = `cat ~/StackName.txt`
-            echo $PreviousStackName
+            echo ${PreviousStackName}
             aws s3 rm "s3://${OldPipelineID}" --recursive
             aws cloudformation delete-stack --stack-name "${PreviousStackName}"
 
