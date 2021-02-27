@@ -55,7 +55,7 @@ jobs:
           name: Retrieve last deployment Stack Name
           command: |
             aws cloudformation \
-            list-exports --query "Exports[?Name==\`StackName\`].Value" \
+            list-exports --query "Exports[?Name==\`PipelineID\`].Value" \
             --no-paginate --output text >> ~/StackName.txt
       - run: cat ~/StackName.txt
       - persist_to_workspace:
