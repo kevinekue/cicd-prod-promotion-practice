@@ -74,7 +74,7 @@ jobs:
             command: |
               aws cloudformation deploy \
               --template-file cloudfront.yml \
-              --stack-name production-distro \
+              --stack-name cloudfront.yml \
               --parameter-overrides PipelineID="${CIRCLE_WORKFLOW_ID}"
 
   clean_up_front_end:
